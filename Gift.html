@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Món quà bí ẩn 🎁</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #d6fedb;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        h2 {
+            color: #d35400;
+            margin-bottom: 30px;
+        }
+        .scene {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            position: relative;
+        }
+        .gift-box {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            background-color: #FF2E2E;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            overflow: visible;
+            z-index: 10;
+        }
+        .gift-box:hover {
+            transform: scale(1.05);
+        }
+        /* Dải ruy băng */
+        .ribbon-horizontal {
+            position: absolute;
+            width: 100%;
+            height: 24px;
+            background-color: #FFD700;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            z-index: 2;
+            border-radius: 2px;
+        }
+        .ribbon-vertical {
+            position: absolute;
+            width: 24px;
+            height: 100%;
+            background-color: #FFD700;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            z-index: 2;
+            border-radius: 2px;
+        }
+        /* Nơ trung tâm */
+        .bow {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+        }
+        /* Mảnh ruy băng bay ra */
+        .ribbon-piece {
+            position: absolute;
+            background-color: #FFD700;
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            z-index: 4;
+            pointer-events: none;
+        }
+        /* Video container */
+        .video-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 20;
+            width: auto;
+            max-width: 90%;
+        }
+        iframe {
+            width: 800px;
+            height: 450px;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        /* Hiệu ứng ánh sáng */
+        .gift-box::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 10px;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.3);
+            pointer-events: none;
+        }
+        @media (max-width: 900px) {
+            iframe {
+                width: 90vw;
+                height: calc(90vw * 9/16);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🎁 Kính gửi bạn món quà này, hãy thưởng thức thật kỹ nhé! 🎁</h2>
+
+    <div class="scene">
+        <div class="gift-box" id="giftBox">
+            <div class="ribbon-horizontal" id="ribbonHorizontal"></div>
+            <div class="ribbon-vertical" id="ribbonVertical"></div>
+            <div class="bow" id="bow">🎀</div>
+        </div>
+        
+        <div class="video-container" id="videoContainer">
+            <iframe id="videoFrame" 
+                    src="https://player.bilibili.com/player.html?isOutside=true&aid=114243865151598&bvid=BV1AfofYoEXX&cid=29125379444&p=1&autoplay=1" 
+                    allow="autoplay" 
+                    allowfullscreen="true">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("giftBox").addEventListener("click", function() {
+            // Tạo các mảnh ruy băng bay ra
+            createRibbonPieces();
+            
+            // Animation mở hộp quà
+            anime({
+                targets: '#giftBox',
+                scale: [1, 1.3],
+                rotate: [0, 15, -15, 0],
+                duration: 800,
+                easing: "easeInOutQuad",
+                complete: function() {
+                    // Ẩn các phần tử gốc
+                    anime({
+                        targets: ['#ribbonHorizontal', '#ribbonVertical', '#bow'],
+                        opacity: 0,
+                        duration: 300,
+                        easing: "linear"
+                    });
+                    
+                    // Hiệu ứng bung ruy băng ra ngoài
+                    anime({
+                        targets: '.ribbon-piece',
+                        translateX: function() {
+                            return anime.random(-300, 300);
+                        },
+                        translateY: function() {
+                            return anime.random(-300, 300);
+                        },
+                        rotate: function() {
+                            return anime.random(-360, 360);
+                        },
+                        scale: [0, 1],
+                        opacity: [0, 1],
+                        duration: 1200,
+                        delay: anime.stagger(50),
+                        easing: "easeOutElastic"
+                    });
+                    
+                    // Hiệu ứng confetti
+                    createConfetti();
+                    
+                    // Ẩn hộp quà và hiện video
+                    setTimeout(function() {
+                        document.getElementById("giftBox").style.display = "none";
+                        document.getElementById("videoContainer").style.display = "block";
+                        
+                        // Reset video để autoplay
+                        let videoFrame = document.getElementById("videoFrame");
+                        let src = videoFrame.src;
+                        videoFrame.src = "";
+                        setTimeout(() => {
+                            videoFrame.src = src;
+                        }, 10);
+
+                        // Bypass autoplay policy
+                        let audio = new Audio();
+                        audio.src = "data:audio/wav;base64,UklGRiIAAABXQVZFZm10IBAAAAABAAEAwF0AAIC7AAACABAAZGF0YQAAAAA=";
+                        audio.play().catch(e => console.log("Autoplay audio trick failed", e));
+                    }, 800);
+                }
+            });
+        });
+
+        function createRibbonPieces() {
+            const scene = document.querySelector('.scene');
+            const colors = ['#FFD700', '#FFC300', '#FFDB58', '#F1C40F'];
+            
+            // Tạo 30 mảnh ruy băng
+            for (let i = 0; i < 30; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'ribbon-piece';
+                
+                // Kích thước ngẫu nhiên
+                const width = anime.random(15, 40);
+                const height = anime.random(8, 15);
+                
+                piece.style.width = `${width}px`;
+                piece.style.height = `${height}px`;
+                piece.style.backgroundColor = colors[anime.random(0, colors.length - 1)];
+                piece.style.borderRadius = '3px';
+                piece.style.left = '50%';
+                piece.style.top = '50%';
+                
+                scene.appendChild(piece);
+                
+                // Tự động xóa sau animation
+                setTimeout(() => {
+                    piece.remove();
+                }, 2000);
+            }
+        }
+
+        function createConfetti() {
+            const scene = document.querySelector('.scene');
+            const colors = ['#FF2E2E', '#FFD700', '#2ECC71', '#3498DB', '#9B59B6', '#E91E63'];
+            
+            // Tạo 100 confetti
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // Kích thước và hình dạng ngẫu nhiên
+                const size = anime.random(6, 12);
+                const isCircle = Math.random() > 0.5;
+                const shape = Math.random() > 0.8 ? '0' : (isCircle ? '50%' : '0');
+                
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.backgroundColor = colors[anime.random(0, colors.length - 1)];
+                confetti.style.borderRadius = shape;
+                confetti.style.left = `${anime.random(40, 60)}%`;
+                confetti.style.top = `${anime.random(40, 60)}%`;
+                
+                scene.appendChild(confetti);
+                
+                // Animation confetti bay xa
+                anime({
+                    targets: confetti,
+                    translateX: function() {
+                        return anime.random(-500, 500);
+                    },
+                    translateY: function() {
+                        return anime.random(-500, 500);
+                    },
+                    rotate: function() {
+                        return anime.random(-720, 720);
+                    },
+                    opacity: [0, 1, 0],
+                    scale: [0, 1],
+                    duration: anime.random(1500, 2500),
+                    easing: 'easeOutExpo',
+                    complete: function() {
+                        confetti.remove();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
